@@ -1,9 +1,11 @@
 name: CI
-
 on:
   workflow_dispatch:
   pull_request:
-    types: [opened, synchronize]
+    type:
+      - opened
+      - synchronize
+
   push:
     branches:
       - main
@@ -17,21 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Node & NPM version
-        run: |
-          node -v
-          npm -v
-
       - name: Install dependencies
-        run: npm install
+        run: npm install --immutable
 
       - name: Run ESLint
-        run: |
-          echo "=== ESLint запускається ==="
-          npx eslint . || true
-          echo "=== ESLint завершено ==="
+        run: npm run lint
 
       - name: Print current date
         run: |
-          echo "Сьогодні: $(date)"
+          echo "Сьогоднішня дата: $(date)"
           echo "Дата виведена успішно!"
