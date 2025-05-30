@@ -1,3 +1,14 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize]
+  push:
+    branches:
+      - main
+      - master
+
 jobs:
   lint:
     name: Lint
@@ -5,6 +16,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Node & NPM version
+        run: |
+          node -v
+          npm -v
 
       - name: Install dependencies
         run: npm install
@@ -17,6 +33,5 @@ jobs:
 
       - name: Print current date
         run: |
-          echo "Сьогоднішня дата:"
-          date
+          echo "Сьогодні: $(date)"
           echo "Дата виведена успішно!"
