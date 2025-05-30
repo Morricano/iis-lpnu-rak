@@ -1,11 +1,9 @@
 name: CI
+
 on:
   workflow_dispatch:
   pull_request:
-    type:
-      - opened
-      - synchronize
-
+    types: [opened, synchronize]
   push:
     branches:
       - main
@@ -24,3 +22,8 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
+
+      - name: Print current date
+        run: |
+          echo "Сьогодні: $(date)"
+          echo "Дата виведена успішно!"
