@@ -2,18 +2,11 @@ pipeline {
     agent { label 'local' }
 
     environment {
-        REPO_URL = 'https://github.com/Morricano/iis-lpnu-rak.git'
         SONARQUBE_ENV = 'Lab11-sonar-server-rak'
     }
 
-    stages {
-        stage('Checkout') {
-            steps {
-                git url: "${REPO_URL}", branch: 'main'
-            }
-        }
 
-        stage('Installing NPM (if needed)') {
+        stage('Перевірка та встановлення NPM (якщо необхідно)') {
             steps {
                 sh '''
                 if ! command -v npm &> /dev/null
@@ -27,7 +20,7 @@ pipeline {
             }
         }
 
-        stage('Installing dependencies') {
+        stage('Встановлення залежностей') {
             steps {
                 sh 'npm install --legacy-peer-deps'
             }
@@ -45,7 +38,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube analysis') {
+        stage('аналіз SonarQube ') {
             steps {
                 script {
                     def scannerHome = tool 'Lab11_scanner_rak'
@@ -59,10 +52,10 @@ pipeline {
 
     post {
         success {
-            echo "✅ Pipeline completed successfully"
+            echo "Пайплайн завершено успішно"
         }
         failure {
-            echo "❌ Pipeline failed"
+            echo "Помилка"
         }
     }
 }
