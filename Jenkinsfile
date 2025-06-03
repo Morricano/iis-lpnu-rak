@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'local' }
 
     environment {
         REPO_URL = 'https://github.com/Morricano/iis-lpnu-rak.git'
