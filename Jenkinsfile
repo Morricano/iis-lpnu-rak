@@ -5,7 +5,7 @@ pipeline {
         SONARQUBE_ENV = 'Lab11-sonar-server-rak'
     }
 
-
+    stages {
         stage('Перевірка та встановлення NPM (якщо необхідно)') {
             steps {
                 sh '''
