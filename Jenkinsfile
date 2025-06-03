@@ -66,8 +66,7 @@ pipeline {
                     def scannerHome = tool 'Lab11_scanner_rak'
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
                         dir(PROJECT_DIR) {
-                            sh 'echo "📂 Поточні файли:" && ls -la'
-                            sh 'echo "📄 Вміст sonar-project.properties:" && cat sonar-project.properties || echo "❌ Немає файла!"'
+                            sh 'echo "Поточні файли:" && ls '
                             sh "${scannerHome}/bin/sonar-scanner"
                         }
                     }
