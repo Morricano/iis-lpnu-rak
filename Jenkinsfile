@@ -22,7 +22,7 @@ pipeline {
                     sudo apt-get update
                     sudo apt-get install -y npm
                 else
-                    echo " npm already installed"
+                    echo "npm already installed"
                 fi
                 '''
             }
@@ -44,7 +44,7 @@ pipeline {
                     DEV_PID=$!
                     sleep 10
                     kill $DEV_PID
-                    echo " Dev server started and stopped successfully."
+                    echo "Dev server started and stopped successfully."
                     '''
                 }
             }
@@ -56,6 +56,9 @@ pipeline {
                     def scannerHome = tool 'Lab11_scanner_rak'
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
                         dir(PROJECT_DIR) {
+                            // 🟡 Додали лог-файлів і перевірку
+                            sh 'echo "📂 Поточні файли:" && ls -la'
+                            sh 'echo "📄 Вміст sonar-project.properties:" && cat sonar-project.properties || echo "❌ Немає файла!"'
                             sh "${scannerHome}/bin/sonar-scanner"
                         }
                     }
@@ -74,10 +77,10 @@ pipeline {
 
     post {
         success {
-            echo "Pipeline completed "
+            echo "✅ Pipeline completed successfully"
         }
         failure {
-            echo "Pipeline failed"
+            echo "❌ Pipeline failed"
         }
     }
 }
