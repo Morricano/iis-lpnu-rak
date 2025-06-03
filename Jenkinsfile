@@ -53,7 +53,7 @@ pipeline {
         stage('SonarQube analysis') {
             steps {
                 script {
-                    def scannerHome = tool 'Lab11_sonar_scanner'
+                    def scannerHome = tool 'Lab11_scanner_rak'
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
                         dir(PROJECT_DIR) {
                             sh "${scannerHome}/bin/sonar-scanner"
