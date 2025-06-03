@@ -3,21 +3,10 @@ pipeline {
 
     environment {
         REPO_URL = 'https://github.com/Morricano/iis-lpnu-rak.git'
-        PROJECT_DIR = 'iis-lpnu-rak'
         SONARQUBE_ENV = 'Lab11-sonar-server-rak'
     }
 
     stages {
-        stage('Clean workspace') {
-            steps {
-                sh '''
-                echo "🧹 Очищення робочої директорії..."
-                rm -rf ${PROJECT_DIR}
-                echo "✅ Директорію ${PROJECT_DIR} видалено (якщо існувала)."
-                '''
-            }
-        }
-
         stage('Checkout') {
             steps {
                 git url: "${REPO_URL}", branch: 'main'
@@ -40,23 +29,19 @@ pipeline {
 
         stage('Installing dependencies') {
             steps {
-                dir(PROJECT_DIR) {
-                    sh 'npm install --legacy-peer-deps'
-                }
+                sh 'npm install --legacy-peer-deps'
             }
         }
 
         stage('Running dev server (test only)') {
             steps {
-                dir(PROJECT_DIR) {
-                    sh '''
-                    nohup npm run dev > dev.log 2>&1 &
-                    DEV_PID=$!
-                    sleep 10
-                    kill $DEV_PID
-                    echo "Dev server started and stopped successfully."
-                    '''
-                }
+                sh '''
+                nohup npm run dev > dev.log 2>&1 &
+                DEV_PID=$!
+                sleep 10
+                kill $DEV_PID
+                echo "Dev server started and stopped successfully."
+                '''
             }
         }
 
@@ -65,10 +50,11 @@ pipeline {
                 script {
                     def scannerHome = tool 'Lab11_scanner_rak'
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
-                        dir(PROJECT_DIR) {
-                            sh 'echo "Поточні файли:" && ls '
-                            sh "${scannerHome}/bin/sonar-scanner"
-                        }
+                        sh 'echo Поточні файли:' 
+                        sh 'ls -la'
+                        sh 'echo Вміст sonar-project.properties:' 
+                        sh 'cat sonar-project.properties || echo "❌ Файл не знайдено!"'
+                        sh "${scannerHome}/bin/sonar-scanner"
                     }
                 }
             }
