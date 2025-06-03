@@ -8,6 +8,16 @@ pipeline {
     }
 
     stages {
+        stage('Clean workspace') {
+            steps {
+                sh '''
+                echo "🧹 Очищення робочої директорії..."
+                rm -rf ${PROJECT_DIR}
+                echo "✅ Директорію ${PROJECT_DIR} видалено (якщо існувала)."
+                '''
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git url: "${REPO_URL}", branch: 'main'
@@ -56,7 +66,6 @@ pipeline {
                     def scannerHome = tool 'Lab11_scanner_rak'
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
                         dir(PROJECT_DIR) {
-                            // 🟡 Додали лог-файлів і перевірку
                             sh 'echo "📂 Поточні файли:" && ls -la'
                             sh 'echo "📄 Вміст sonar-project.properties:" && cat sonar-project.properties || echo "❌ Немає файла!"'
                             sh "${scannerHome}/bin/sonar-scanner"
