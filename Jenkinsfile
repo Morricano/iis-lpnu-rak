@@ -50,31 +50,11 @@ pipeline {
                 script {
                     def scannerHome = tool 'Lab11_scanner_rak'
                     withSonarQubeEnv("${SONARQUBE_ENV}") {
-                        sh 'echo Поточні файли:' 
-                        sh 'ls -la'
-                        sh 'echo Вміст sonar-project.properties:' 
-                        sh 'cat sonar-project.properties || echo "❌ Файл не знайдено!"'
                         sh "${scannerHome}/bin/sonar-scanner"
                     }
                 }
             }
         }
 
-        stage('Wait for SonarQube Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-    }
 
-    post {
-        success {
-            echo "✅ Pipeline completed successfully"
-        }
-        failure {
-            echo "❌ Pipeline failed"
-        }
-    }
 }
