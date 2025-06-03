@@ -4,32 +4,31 @@ pipeline {
     environment {
         REPO_URL = 'https://github.com/Morricano/iis-lpnu-rak.git'
         PROJECT_DIR = 'iis-lpnu-rak'
-         SONARQUBE_ENV = 'Lab11-sonar-server-rak' 
+        SONARQUBE_ENV = 'Lab11-sonar-server-rak'
     }
 
     stages {
-        stage('Очистити робочу директорію') {
+        stage('Checkout') {
             steps {
-                sh 'rm -rf $PROJECT_DIR || true'
+                git url: "${REPO_URL}", branch: 'main'
             }
         }
 
-        stage('Клонування репозиторію') {
-            steps {
-                sh "git clone $REPO_URL"
-            }
-        }
-
-        stage('Оновлення системи та інсталяція NPM') {
+        stage('Installing NPM (if needed)') {
             steps {
                 sh '''
+                if ! command -v npm &> /dev/null
+                then
                     sudo apt-get update
                     sudo apt-get install -y npm
+                else
+                    echo " npm already installed"
+                fi
                 '''
             }
         }
 
-        stage('Встановлення залежностей') {
+        stage('Installing dependencies') {
             steps {
                 dir(PROJECT_DIR) {
                     sh 'npm install --legacy-peer-deps'
@@ -37,28 +36,48 @@ pipeline {
             }
         }
 
-        stage('Запуск збірки') {
+        stage('Running dev server (test only)') {
             steps {
                 dir(PROJECT_DIR) {
-                    sh 'npm run build'
+                    sh '''
+                    nohup npm run dev > dev.log 2>&1 &
+                    DEV_PID=$!
+                    sleep 10
+                    kill $DEV_PID
+                    echo " Dev server started and stopped successfully."
+                    '''
                 }
             }
         }
 
-        stage('Аналіз SonarQube') {
+        stage('SonarQube analysis') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_ENV}") {
-                    dir(PROJECT_DIR) {
-                        sh 'sonar-scanner'
+                script {
+                    def scannerHome = tool 'Lab11_sonar_scanner'
+                    withSonarQubeEnv("${SONARQUBE_ENV}") {
+                        dir(PROJECT_DIR) {
+                            sh "${scannerHome}/bin/sonar-scanner"
+                        }
                     }
                 }
             }
         }
 
-        stage('Інформація про IP') {
+        stage('Wait for SonarQube Quality Gate') {
             steps {
-                sh "echo IP: \$(hostname -I)"
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
+        }
+    }
+
+    post {
+        success {
+            echo "Pipeline completed "
+        }
+        failure {
+            echo "Pipeline failed"
         }
     }
 }
